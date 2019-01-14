@@ -10,8 +10,8 @@
 #/* new design                                              */
 #/***********************************************************/
 
-read_file -f sverilog [list "tut_mod.v"]
-set design_name two_bit_pred
+read_file -f sverilog [list "arbiter.v"]
+set design_name arbiter
 set clock_name clock
 set reset_name reset
 set CLK_PERIOD 10

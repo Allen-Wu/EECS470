@@ -22,14 +22,20 @@ all:	simv
 # Modify starting here
 #####
 
-TESTBENCH = tut_test.v
-SIMFILES = tut_mod.v
-SYNFILES = two_bit_pred.vg
+TESTBENCH = arbiter_test.v
+SIMFILES = arbiter.v
+SYNFILES = arbiter.vg
 
 
 #####
 # Should be no need to modify after here
 #####
+two_bit_pred.vg:	tut_mod.v tut_synth.tcl
+	dc_shell-t -f tut_synth.tcl | tee synth.out
+
+arbiter.vg:	arbiter.v tut_synth.tcl
+	dc_shell-t -f tut_synth.tcl | tee synth.out
+
 simv:	$(SIMFILES) $(TESTBENCH)
 	$(VCS) $(TESTBENCH) $(SIMFILES) -o simv
 
