@@ -2,13 +2,10 @@ module rps2(
     input [1:0] req,
     input en,
     input sel,
-    output logic [1:0] gnt,
-    output logic req_up
+    output logic [1:0] gnt
 );
     
     always_comb begin
-        if (req[1] == 1'b1 || req[0] == 1'b1) req_up = 1'b1;
-        else req_up = 1'b0;
         // Decide based on the sel bit
         if (en == 1'b0) gnt = 2'b00;
         else if (sel == 1'b1) begin
@@ -44,20 +41,21 @@ module rps4(
         else if (count == 2'b11) count <= 2'b00;
     end
 
-    logic [1:0] req_up_temp;
+    logic [3:0] gnt_temp;
 
-    rps2 left(.req(req[3:2]), .en(en), .sel(count[0]), .gnt(gnt[3:2]), .req_up(req_up_temp[1]));
-    rps2 right(.req(req[1:0]), .en(en), .sel(count[0]), .gnt(gnt[1:0]), .req_up(req_up_temp[0]));
+    rps2 left(.req(req[3:2]), .en(en), .sel(count[0]), .gnt(gnt_temp[3:2]));
+    rps2 right(.req(req[1:0]), .en(en), .sel(count[0]), .gnt(gnt_temp[1:0]));
 
     always_comb begin
+        gnt = 4'b0000;
         if (en == 1'b1 && count[1] == 1'b1) begin
-            if (req_up_temp[1] == 1'b1) gnt[1:0] = 2'b00;
+            if (gnt_temp[3:2] == 2'b00) gnt[1:0] = gnt_temp[1:0];
+            else gnt[3:2] = gnt_temp[3:2];
         end
         else if (en == 1'b1 && count[1] == 1'b0) begin
-            if (req_up_temp[0] == 1'b1) gnt[3:2] = 2'b00;
+            if (gnt_temp[1:0] == 2'b00) gnt[3:2] = gnt_temp[3:2];
+            else gnt[1:0] = gnt_temp[1:0];
         end
-        if (req_up_temp[0] == 1'b1 || req_up_temp[1] == 1'b1) req_up = 1'b1;
-        else req_up = 1'b0;
     end
 
 endmodule
