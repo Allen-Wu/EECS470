@@ -25,12 +25,15 @@ module ps4(
     output logic req_up
 );
     logic [1:0] req_up_temp;
+    logic [3:0] gnt_temp;
 
-    ps2 left(.req(req[3:2]), .en(en), .gnt(gnt[3:2]), .req_up(req_up_temp[1]));
-    ps2 right(.req(req[1:0]), .en(en), .gnt(gnt[1:0]), .req_up(req_up_temp[0]));
+    ps2 left(.req(req[3:2]), .en(en), .gnt(gnt_temp[3:2]), .req_up(req_up_temp[1]));
+    ps2 right(.req(req[1:0]), .en(en), .gnt(gnt_temp[1:0]), .req_up(req_up_temp[0]));
 
     always_comb begin
-        if (en == 1'b1 && req_up_temp[1] == 1'b1) gnt[1:0] = 2'b00;
+        gnt = 4'b0000;
+        if (en == 1'b1 && req_up_temp[1] == 1'b1) gnt[3:2] = gnt_temp[3:2];
+        else if (en == 1'b1 && req_up_temp[0] == 1'b1) gnt[1:0] = gnt_temp[1:0];
         if (req_up_temp[0] == 1'b1 || req_up_temp[1] == 1'b1) req_up = 1'b1;
         else req_up = 1'b0;
     end
@@ -45,12 +48,15 @@ module ps8(
     output logic req_up
 );
     logic [1:0] req_up_temp;
+    logic [7:0] gnt_temp;
 
-    ps2 left(.req(req[7:4]), .en(en), .gnt(gnt[7:4]), .req_up(req_up_temp[1]));
-    ps2 right(.req(req[3:0]), .en(en), .gnt(gnt[3:0]), .req_up(req_up_temp[0]));
+    ps4 left(.req(req[7:4]), .en(en), .gnt(gnt_temp[7:4]), .req_up(req_up_temp[1]));
+    ps4 right(.req(req[3:0]), .en(en), .gnt(gnt_temp[3:0]), .req_up(req_up_temp[0]));
 
     always_comb begin
-        if (en == 1'b1 && req_up_temp[1] == 1'b1) gnt[3:0] = 4'b0000;
+        gnt = 8'b00000000;
+        if (en == 1'b1 && req_up_temp[1] == 1'b1) gnt[7:4] = gnt_temp[7:4];
+        else if (en == 1'b1 && req_up_temp[0] == 1'b1) gnt[3:0] = gnt_temp[3:0];
         if (req_up_temp[0] == 1'b1 || req_up_temp[1] == 1'b1) req_up = 1'b1;
         else req_up = 1'b0;
     end
