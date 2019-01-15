@@ -19,6 +19,7 @@ module testbench;
     assign tb_gnt_4[1]=en&req_4[1]&~req_4[2]&~req_4[3];
     assign tb_gnt_4[0]=en&req_4[0]&~req_4[1]&~req_4[2]&~req_4[3];
     assign correct_4=(tb_gnt_4==gnt_4 && (req_up_4 == (req_4[3] | req_4[2] | req_4[1] | req_4[0])));
+    // assign correct_4=(tb_gnt_4==gnt_4);
 
     assign tb_gnt_8[7]=en&req_8[7];
     assign tb_gnt_8[6]=en&req_8[6]&~req_8[7];
@@ -30,6 +31,7 @@ module testbench;
     assign tb_gnt_8[0]=en&req_8[0]&~req_8[1]&~req_8[2]&~req_8[3]&~req_8[4]&~req_8[5]&~req_8[6]&~req_8[7];
     assign correct_8=(tb_gnt_8==gnt_8 && (req_up_8 == (req_8[7] | req_8[6] | 
     req_8[5] | req_8[4] |req_8[3] | req_8[2] | req_8[1] | req_8[0])));
+    // assign correct_8=(tb_gnt_8==gnt_8);
 
     always @(correct_4 or correct_8)
     begin
