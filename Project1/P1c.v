@@ -24,13 +24,15 @@ module ps4(
     output logic [3:0] gnt,
     output logic req_up
 );
-    logic [2:0] req_up_temp;
-    logic [1:0] gnt_temp;
+    logic [1:0] req_up_temp;
+    logic [1:0] gnt_temp_one;
+    logic [1:0] gnt_temp_two;
 
     ps2 left(.req(req[3:2]), .en(en), .gnt(gnt[3:2]), .req_up(req_up_temp[1]));
-    ps2 right(.req(req[1:0]), .en(en), .gnt(gnt_temp[1:0]), .req_up(req_up_temp[0]));
-    ps2 top(.req(gnt_temp[1:0]), .en((~(req_up_temp[1]&req_up_temp[0]))&en), .gnt(gnt[1:0]), .req_up(req_up_temp[2]));
-    assign req_up = (req_up_temp[1] | req_up_temp[0]);
+    ps2 middle(.req({req_up_temp[1], req[1]}), .en(en), .gnt(gnt_temp_one[1:0]), .req_up(req_up_temp[0]));
+    ps2 right(.req({req_up_temp[0], req[0]}), .en(en), .gnt(gnt_temp_two[1:0]), .req_up(req_up));
+    assign gnt[1] = gnt_temp_one[0];
+    assign gnt[0] = gnt_temp_two[0];
 
 endmodule
 
@@ -41,12 +43,14 @@ module ps8(
     output logic [7:0] gnt,
     output logic req_up
 );
-    logic [2:0] req_up_temp;
-    logic [3:0] gnt_temp;
+    logic [1:0] req_up_temp;
+    logic [3:0] gnt_temp_one;
+    logic [1:0] gnt_temp_two;
 
     ps4 left(.req(req[7:4]), .en(en), .gnt(gnt[7:4]), .req_up(req_up_temp[1]));
-    ps4 right(.req(req[3:0]), .en(en), .gnt(gnt_temp[3:0]), .req_up(req_up_temp[0]));
-    ps4 top(.req(gnt_temp[3:0]), .en((~(req_up_temp[1]&req_up_temp[0]))&en), .gnt(gnt[3:0]), .req_up(req_up_temp[2]));
-    assign req_up = (req_up_temp[1] | req_up_temp[0]);
+    ps4 middle(.req({req_up_temp[1], req[3:1]}), .en(en), .gnt(gnt_temp_one[3:0]), .req_up(req_up_temp[0]));
+    ps2 right(.req({req_up_temp[0], req[0]}), .en(en), .gnt(gnt_temp_two[1:0]), .req_up(req_up));
+    assign gnt[3:1] = gnt_temp_one[2:0];
+    assign gnt[0] = gnt_temp_two[0];
 
 endmodule
