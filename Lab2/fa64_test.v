@@ -63,9 +63,11 @@ endtask
 task compare_correct_sum;
     input [63:0] A, B, SUM;
     input C_IN, C_OUT;
+    logic [64:0] ADD_RES;
     begin
             // Check the answer...
-            if( SUM == (A+B+C_IN) )
+            ADD_RES = (A+B+C_IN);
+            if( SUM == ADD_RES[63:0] && ADD_RES[64] == C_OUT )
             begin
                 // "empty" cases are legal, since the begin/end
                 // block is consuming the true if-branch
@@ -124,33 +126,33 @@ initial begin
     // Here, we present a method to test every possible input
     @(negedge clock);
     // For every input A, 0..2^64-1
-    for (i=0; i <= 64'hFFFF_FFFF_FFFF_FFFF; i=i+1) begin 
-        // For every input B, 0..2^64-1
-        for (j=0; j <= 64'hFFFF_FFFF_FFFF_FFFF ; j=j+1) begin 
-            // Set the inputs
-            A = i;
-            B = j;
-            C_IN = 0;
+    // for (i=0; i <= 64'hFFFF_FFFF_FFFF_FFFF; i=i+1) begin 
+    //     // For every input B, 0..2^64-1
+    //     for (j=0; j <= 64'hFFFF_FFFF_FFFF_FFFF ; j=j+1) begin 
+    //         // Set the inputs
+    //         A = i;
+    //         B = j;
+    //         C_IN = 0;
 
-            // Since there's no clock, we have to add a delay
-            // to allow signals to propagate
-            #1
+    //         // Since there's no clock, we have to add a delay
+    //         // to allow signals to propagate
+    //         #1
 
-            // And check the result (aren't tasks great?)
-            compare_correct_sum(A, B, SUM, C_IN, C_OUT);
-            @(negedge clock);
+    //         // And check the result (aren't tasks great?)
+    //         compare_correct_sum(A, B, SUM, C_IN, C_OUT);
+    //         @(negedge clock);
 
-            // And for the other carry
-            C_IN = 1;
-            #1
-            compare_correct_sum(A, B, SUM, C_IN, C_OUT);
-            @(negedge clock);
-        end
+    //         // And for the other carry
+    //         C_IN = 1;
+    //         #1
+    //         compare_correct_sum(A, B, SUM, C_IN, C_OUT);
+    //         @(negedge clock);
+    //     end
 
-        // How long will it take for this line to print?
-        // How many times does it have to print?
-        $display("Finished one inner loop");
-    end
+    //     // How long will it take for this line to print?
+    //     // How many times does it have to print?
+    //     $display("Finished one inner loop");
+    // end
 
     // ------------------------------------------------------------------------------------------------------------
     // If we wish to test some specific cases instead...
@@ -180,8 +182,8 @@ initial begin
 
     // Random Tests
     @(negedge clock);
-    for (i=0; i <= 99; i=i+1) begin 
-        for (j=0; j <= 99 ; j=j+1) begin
+    for (i=0; i <= 2000; i=i+1) begin 
+        for (j=0; j <= 2000 ; j=j+1) begin
             A = {$random,$random}; // What's up with this syntax?
             B = {$random,$random};
             #1
