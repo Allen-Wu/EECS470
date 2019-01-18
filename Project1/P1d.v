@@ -1,3 +1,4 @@
+// rps2
 module rps2(
     input [1:0] req,
     input en,
@@ -26,7 +27,7 @@ module rps2(
 
 endmodule
 
-
+// rps4
 module rps4(
     input clock,
     input reset,
@@ -44,18 +45,15 @@ module rps4(
         else if (count == 2'b11) count <= 2'b00;
     end
 
-    logic [3:0] gnt_temp;
-    logic [1:0] req_up_bottom;
+    logic [1:0] req_up_temp;
+    logic [1:0] gnt_temp;
     logic req_up;
-    logic [1:0] sel_top;
 
-    rps2 left(.req(req[3:2]), .en(en), .sel(count[0]), .gnt(gnt_temp[3:2]), .req_up(req_up_bottom[1]));
-    rps2 right(.req(req[1:0]), .en(en), .sel(count[0]), .gnt(gnt_temp[1:0]), .req_up(req_up_bottom[0]));
-    rps2 top(.req(req_up_bottom), .en(en), .sel(count[1]), .gnt(sel_top), .req_up(req_up));
-
-    assign gnt[3] = gnt_temp[3]&sel_top[1];
-    assign gnt[2] = gnt_temp[2]&sel_top[1];
-    assign gnt[1] = gnt_temp[1]&sel_top[0];
-    assign gnt[0] = gnt_temp[0]&sel_top[0];
+    rps2 left(.req(req[3:2]), .en(gnt_temp[1]), .sel(count[0]),
+     .gnt(gnt[3:2]), .req_up(req_up_temp[1]));
+    rps2 right(.req(req[1:0]), .en(gnt_temp[0]), .sel(count[0]),
+     .gnt(gnt[1:0]), .req_up(req_up_temp[0]));
+    rps2 top(.req(req_up_temp[1:0]), .en(en), .sel(count[1]),
+     .gnt(gnt_temp[1:0]), .req_up(req_up));
 
 endmodule
