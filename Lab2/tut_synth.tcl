@@ -10,11 +10,11 @@
 #/* new design                                              */
 #/***********************************************************/
 
-read_file -f sverilog [list "fa1.v"]
-set design_name full_adder_1bit
+read_file -f sverilog [list "fa1.v" "fa64.v" ]
+set design_name full_adder_64bit
 set clock_name clock
 set reset_name reset
-set CLK_PERIOD 10
+set CLK_PERIOD 5
 
 
 

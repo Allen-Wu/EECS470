@@ -186,12 +186,80 @@ initial begin
         for (j=0; j <= 2000 ; j=j+1) begin
             A = {$random,$random}; // What's up with this syntax?
             B = {$random,$random};
+            if (j % 2 == 1) C_IN = 1'b1;
+            else C_IN = 1'b0;
             #1
             compare_correct_sum(A, B, SUM, C_IN, C_OUT);
             @(negedge clock);
         end
     end
 
+    // Corner Test Cases
+    // Two negative numbers
+    A = 64'h8000_0000_0000_0000;
+    B = 64'h8000_0000_0000_0000;
+    C_IN = 0;
+
+    @(negedge clock);
+
+    A = 64'h8000_0000_0000_0000;
+    B = 64'h8000_0000_0000_0000;
+    C_IN = 1;
+
+    @(negedge clock);
+    A = 64'h8000_0000_FFFF_ABCD;
+    B = 64'h8000_FFFF_0000_1996;
+    C_IN = 0;
+
+    @(negedge clock);
+    A = 64'hFE00_0000_FFFF_ABCD;
+    B = 64'hFFF2_FFFF_0000_1996;
+    C_IN = 1;
+
+    @(negedge clock);
+    A = 64'hFFAB_0123_FFFF_ABCD;
+    B = 64'hFFF2_FFFF_0000_1996;
+    C_IN = 1;
+
+    // One positive, one negative
+    @(negedge clock);
+    A = 64'h7FAB_0123_FFFF_ABCD;
+    B = 64'hAFF2_FFFF_0000_1996;
+    C_IN = 1;
+
+    @(negedge clock);
+    A = 64'hF0AB_0123_FFFF_ABCD;
+    B = 64'h7FF2_FFFF_0000_1996;
+    C_IN = 0;
+
+    @(negedge clock);
+    A = 64'h0000_0000_FFFF_ABCD;
+    B = 64'h8000_0012_0000_1996;
+    C_IN = 1;
+
+    // One zero, another non-zero
+    @(negedge clock);
+    A = 64'h0000_0000_0000_0000;
+    B = 64'h8000_0012_0000_1996;
+    C_IN = 1;
+
+    // Two positive numbers
+    @(negedge clock);
+    A = 64'h5FAB_0000_0000_0000;
+    B = 64'h2000_0012_0000_1996;
+    C_IN = 1;
+
+    @(negedge clock);
+    A = 64'h7FFF_FFFF_FFFF_FFFF;
+    B = 64'h7FFF_FFFF_FFFF_FFFF;
+    C_IN = 1;
+
+    @(negedge clock);
+    A = 64'h7ABC_FFFF_FFFF_FFFF;
+    B = 64'h7FFF_FFFF_FFFF_FFFF;
+    C_IN = 0;
+
+    @(negedge clock);
     
 // DON'T FORGET TO FINISH THE SIMULATION
     $display("\nENDING TESTBENCH: SUCCESS!\n");
