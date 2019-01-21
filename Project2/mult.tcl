@@ -4,7 +4,7 @@
 #/*   Usage       : dc_shell -tcl_mode -f mult.scr          */
 #/*   You'll need to minimally set design_name & read files */
 #/***********************************************************/
-
+#/* 8-stage = 5ns, 4-stage = 7.5ns, 2-stage = 12.5ns        */
 #/***********************************************************/
 #/* The following lines must be updated for every           */
 #/* new design                                              */
@@ -16,7 +16,7 @@ read_file -f sverilog [list "pipe_mult.v"]
 set design_name mult
 set clock_name clock
 set reset_name reset
-set CLK_PERIOD 5
+set CLK_PERIOD 12.5
 
 
 #/***********************************************************/

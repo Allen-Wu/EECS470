@@ -4,7 +4,7 @@
 #/*   Usage       : dc_shell -tcl_mode -f default.tcl       */
 #/*   You'll need to minimally set design_name & read files */
 #/***********************************************************/
-
+#/* 8-stage = 4.5ns, 4-stage = 7ns, 2-stage = 12ns          */
 #/***********************************************************/
 #/* The following five lines must be updated for every      */
 #/* new design                                              */
@@ -14,7 +14,7 @@ read_file -f sverilog [list "mult_stage.v"]
 set design_name mult_stage
 set clock_name clock
 set reset_name reset
-set CLK_PERIOD 4.5
+set CLK_PERIOD 12
 
 
 
