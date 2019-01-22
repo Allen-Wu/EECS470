@@ -9,7 +9,7 @@ module mult_stage (
 					output logic done,
 					output logic [63:0] product_out, mplier_out, mcand_out
 				);
-	parameter NUM_STAGE = 2;
+	parameter NUM_STAGE = 8;
 
 	logic [63:0] prod_in_reg, partial_prod_reg;
 	logic [63:0] partial_product, next_mplier, next_mcand;

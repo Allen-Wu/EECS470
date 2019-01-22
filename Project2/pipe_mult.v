@@ -1,3 +1,5 @@
+`ifndef __PIPE_MULT_V__
+`define __PIPE_MULT_V__
 // This is an 8 stage (9 depending on how you look at it) pipelined 
 // multiplier that multiplies 2 64-bit integers and returns the low 64 bits 
 // of the result.  This is not an ideal multiplier but is sufficient to 
@@ -12,7 +14,7 @@ module mult(
 				output done
 			);
 
-	parameter NUM_STAGE = 2;	
+	parameter NUM_STAGE = 8;	
 
   	logic [63:0] mcand_out, mplier_out;
   	logic [((NUM_STAGE - 1)*64)-1:0] internal_products, internal_mcands, internal_mpliers;
@@ -32,3 +34,4 @@ module mult(
 	);
 
 endmodule
+`endif
