@@ -6,21 +6,22 @@ module testbench();
 	logic [31:0] result;
 	logic done;
     logic [31:0] ground_truth;
+	logic quit;
 
-	wire correct = (cres===result)|~done;
+	wire correct = (ground_truth===result)|~done|reset;
 
     ISR isr(.reset(reset), .value(val), .clock(clock),
      .result(result), .done(done));
 
 	always @(posedge clock)
 		#2 if(!correct) begin 
-			$display("Incorrect at time %4.0f",$time);
-			$display("cres = %h result = %h",cres,result);
-			$finish;
+			// $display("Incorrect at time %4.0f",$time);
+			// $display("done = %h ground_truth = %h result = %h",done,ground_truth,result);
+			// $finish;
 		end
 
 	always begin
-		#5;
+		#100;
 		clock=~clock;
 	end
 
@@ -31,7 +32,10 @@ module testbench();
 		forever begin : wait_loop
 			@(posedge done);
 			@(negedge clock);
-			if(done) disable wait_until_done;
+			if(done) begin
+				$display("debug************");
+				disable wait_until_done;
+			end
 		end
 	endtask
 
@@ -52,36 +56,54 @@ module testbench();
 	initial begin
 
 		//$vcdpluson;
-		$monitor("Time:%4.0f done:%b a:%h b:%h product:%h result:%h",$time,done,a,b,cres,result);
-		a=2;
-		b=3;
-		reset=1;
-		clock=0;
+		$monitor("Time:%4.0f done:%b ground_truth:%h result:%h",$time,done,ground_truth,result);
+		val = 144;
+		reset = 1;
+		clock = 0;
+		cal_ground_truth(val, ground_truth);
 
 		@(negedge clock);
-		reset=0;
 		@(negedge clock);
-        val = 24;
-        cal_ground_truth(val, ground_truth);
+		reset = 0;
 		wait_until_done();
-		@(negedge clock);
-        val = 109;
-        cal_ground_truth(val, ground_truth);
-		wait_until_done();
-		@(negedge clock);
-		val = 999;
-        cal_ground_truth(val, ground_truth);
-		wait_until_done();
-		@(negedge clock);
-		wait_until_done();
-		quit = 0;
-		quit <= #10000 1;
-		while(~quit) begin
-			val={$random,$random};
-            cal_ground_truth(val, ground_truth);
-			@(negedge clock);
-			wait_until_done();
-		end
+		$display("debug************");
+		// @(negedge clock);
+        // reset = 1;
+		// val = 24;
+		// cal_ground_truth(val, ground_truth);
+		// @(negedge clock);
+		// reset = 0;
+		// @(negedge clock);
+		// @(negedge clock);
+		// wait_until_done();
+		// @(negedge clock);
+		// reset = 1;
+		// val = 109;
+		// @(negedge clock);
+		// @(negedge clock);
+		// reset = 0;
+		// @(negedge clock);
+		// val = 225;
+        // reset = 1;
+        // cal_ground_truth(val, ground_truth);
+		// @(negedge clock);
+		// reset = 0;
+		// @(negedge clock);
+		// wait_until_done();
+		// @(negedge clock);
+		// val = 999;
+        // cal_ground_truth(val, ground_truth);
+		// wait_until_done();
+		// @(negedge clock);
+		// wait_until_done();
+		// quit = 0;
+		// quit <= #10000 1;
+		// while(~quit) begin
+		// 	val={$random,$random};
+        //     cal_ground_truth(val, ground_truth);
+		// 	@(negedge clock);
+		// 	wait_until_done();
+		// end
 		$finish;
 	end
 

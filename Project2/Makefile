@@ -18,11 +18,11 @@ all:    simv
 # Modify starting here
 #####
 
-TESTBENCH = mult_test.v
-SIMFILES = pipe_mult.v mult_stage.v
-SYNFILES = mult.vg 
+TESTBENCH = test_ISR.v
+SIMFILES = ISR.v pipe_mult.v mult_stage.v
+SYNFILES = ISR.vg 
 
-mult.vg:	pipe_mult.v mult_stage.vg mult.tcl
+ISR.vg:	ISR.v pipe_mult.v mult_stage.vg mult.tcl
 	dc_shell-t -f ./mult.tcl | tee mult_synth.out
 
 mult_stage.vg:	mult_stage.v mult_stage.tcl
