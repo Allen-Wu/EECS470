@@ -14,7 +14,7 @@ read_file -f sverilog [list "mult_stage.v"]
 set design_name mult_stage
 set clock_name clock
 set reset_name reset
-set CLK_PERIOD 12
+set CLK_PERIOD 4.5
 
 
 

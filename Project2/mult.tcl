@@ -16,7 +16,7 @@ read_file -f sverilog [list "pipe_mult.v"]
 set design_name mult
 set clock_name clock
 set reset_name reset
-set CLK_PERIOD 12.5
+set CLK_PERIOD 5
 
 
 #/***********************************************************/

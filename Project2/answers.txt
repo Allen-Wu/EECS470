@@ -1,0 +1,31 @@
+Q1. (a) For 8-stage multiplication pipeline, for each stage, the minimal cycle time I find is 4.5ns. 
+        For the whole multiplier, the minimal cycle time is 5ns, which is slightly higher than each 
+        stage's cycle time, due to the combinational circuit delay.
+
+    (b) Given 8-stage multiplier, it needs at least 8 clock cycles to finish the multiplication.
+        In other words, in the best case, the total latency is: latency = 8 * 5 = 40ns.
+
+Q2. 4-stage multiplier: For each stage: minimal cycle time = 7ns
+                        For whole multiplier: minimal cycle time = 7.5ns
+                        Whole latency = 7.5 * 4 = 30ns
+
+    2-stage multiplier: For each stage: minimal cycle time = 12ns
+                        For whole multiplier: minimal cycle time = 12.5ns
+                        Whole latency = 12.5 * 2 = 25ns
+
+Q3. It seems reasonable. First, the cycle time for the whole multiplier is slightly higher
+    than the cycle time for each stage. This is due to the small overhead caused by additional 
+    combinational circuit delay in each stage. 
+
+    Second, if we reduce the number of stages, the computational
+    overhead in each cycle or in each stage will increase. For example, in 8-stage
+    multiplier, in each cycle, it computes the multiplication between two 8-bits numbers.
+    While in 4-stage multiplier, in each cycle, it computes the multiplication between
+    two 16-bits numbers. Thus, the cycle time increases when the number of stage decreases.
+
+    Third, the total latency may decrease or increase, depending on the trade-off between
+    number of stages and the cycle time for each stage. If we switch from 8-stage multiplier
+    to 4-stage multiplier, the number of stage decreases, but the corresponding cycle time also
+    increases. We need to do the calculations to determine the latency change.
+
+Q4. 
