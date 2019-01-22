@@ -10,31 +10,32 @@ module ISR(
 
     logic [63:0] cal_value; // Input value
     logic [4:0] for_counter;// For loop counter
-    logic loop_terminate;   // Flag for the terminal of for loop
     logic start_mult;       // Flag for starting calculating square
     logic reset_sig;        // Signal for reset
 
     logic [31:0] temp_res;  // Temporary result. Move from top bit to bottom bit
     logic [63:0] sqr_res;   // Sqaure of temporary result
     logic partial_done;     // Flag for finishing the partial multiplication
-    
-    // Rising clock edge
+
     always_ff @(posedge clock) begin
         // Sync reset
         if (reset == 1'b1) begin
+            // Init
             cal_value <= #1 value;
-            reset_sig <= #1 1'b1;
             for_counter <= #1 5'b11111;
-            loop_terminate <= #1 1'b0;
             start_mult <= #1 1'b0;
+            reset_sig <= #1 1'b1;
+            temp_res[31:0] <= #1 32'h00000000;
         end
         else begin
             reset_sig <= #1 1'b0;
-            if (for_counter == 5'b00000 && partial_done == 1'b1) begin
-                start_mult = 1'b0;
-                loop_terminate <= #1 1'b1;
+            start_mult <= #1 1'b1;
+            if (for_counter != 5'b00000 && partial_done == 1'b1) begin
+                // Transit to next state
+                temp_res[for_counter] <= #1 result[for_counter];
+                temp_res[for_counter - 1] <= #1 1'b1;
+                for_counter <= #1 (for_counter - 1);
             end
-            else if (partial_done == 1'b1) for_counter <= #1 (for_counter - 1'b1);
         end
     end
 
@@ -45,31 +46,11 @@ module ISR(
         if (reset_sig == 1'b1) begin
             done = 1'b0;
             result[31:0] = 32'h00000000;
-            temp_res[31:0] = 32'h00000000;
         end
         else begin
-            if (loop_terminate == 1'b0) begin
-                // Keep looping every bit
-                if (start_mult == 1'b0) begin
-                    // Haven't started
-                    temp_res[for_counter] = 1'b1;
-                end
-                else begin
-                    // Already started
-                    if (partial_done == 1'b1) begin
-                        // Finish square calculation
-                        if (sqr_res > cal_value) temp_res[for_counter] = 1'b0;
-                        else temp_res[for_counter] = 1'b1;
-                    end
-                end
-            end
-            else begin
-                // Finish calculation
-                if (done == 1'b0) begin
-                    result[31:0] = temp_res[31:0];
-                    done = 1'b1;
-                end
-            end
+            done = partial_done & ~for_counter[0] & ~for_counter[1]
+             & ~for_counter[2] & ~for_counter[3] & ~for_counter[4];
+            result[for_counter] = (sqr_res > cal_value ? 1'b0 : 1'b1) & partial_done;
         end
     end
 
