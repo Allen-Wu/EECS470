@@ -1,3 +1,5 @@
+// `define DEBUG
+
 module testbench();
 
 	logic [63:0] val;
@@ -17,9 +19,11 @@ module testbench();
      .result(result), .done(done));
 
 	always @(posedge clock)
-		#2 if(!correct) begin 
-			$display("Incorrect at time %4.0f",$time);
-			$display("done = %h ground_truth = %h result = %h",done,ground_truth,result);
+		#2 if(!correct) begin
+			`ifdef DEBUG 
+				$display("Incorrect at time %4.0f",$time);
+				$display("done = %h ground_truth = %h result = %h",done,ground_truth,result);
+			`endif
 			$display("@@@Failed");
 			$finish;
 		end
@@ -37,10 +41,12 @@ module testbench();
 			@(posedge done);
 			@(negedge clock);
 			if(done) begin
-				$display("@@@Finish one value calculation");
-				curr_time = $time;
-				$display("@@@ # Clock Cycle:%d", (curr_time - prev_time)/10);
-				prev_time = curr_time;
+				`ifdef DEBUG
+					$display("@@@Finish one value calculation");
+					curr_time = $time;
+					$display("@@@ # Clock Cycle:%d", (curr_time - prev_time)/10);
+					prev_time = curr_time;
+				`endif
 				disable wait_until_done;
 			end
 		end
@@ -64,7 +70,9 @@ module testbench();
 	initial begin
 
 		//$vcdpluson;
-		$monitor("Time:%4.0f done:%b ground_truth:%h result:%h reset:%h",$time,done,ground_truth,result,reset);
+		`ifdef DEBUG
+			$monitor("Time:%4.0f done:%b ground_truth:%h result:%h reset:%h",$time,done,ground_truth,result,reset);
+		`endif
 		// Square number with sync reset
 		val = 144;
 		reset = 1;
@@ -154,8 +162,3 @@ module testbench();
 	end
 
 endmodule
-
-
-
-  
-  
