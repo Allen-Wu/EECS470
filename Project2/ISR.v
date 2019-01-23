@@ -1,5 +1,3 @@
-`include "pipe_mult.v"
-
 module ISR(
     input reset,
     input [63:0] value,
