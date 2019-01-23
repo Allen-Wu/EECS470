@@ -16,12 +16,11 @@ module ISR(
     logic [31:0] temp_res;  // Temporary result. Move from top bit to bottom bit
     logic [63:0] sqr_res;   // Sqaure of temporary result
     logic partial_done;     // Flag for finishing the partial multiplication
-    logic clear_mult;
+    logic clear_mult;       // Flag for waiting the multiplier to restart
     
-    always_ff @(posedge clock or reset) begin
-        // Sync reset
+    always_ff @(posedge clock or posedge reset) begin
         if (reset == 1'b1) begin
-            // Init
+            // Init for reseting
             cal_value <= #1 value;
             for_counter <= #1 5'b11111;
             start_mult <= #1 1'b0;
@@ -33,14 +32,14 @@ module ISR(
             reset_sig <= #1 1'b0;
             if (clear_mult == 1'b1 && partial_done == 1'b1) begin
                 start_mult <= #1 1'b0;
-            end // Continue waiting
+            end // Wait for the multiplier to restart
             else if (clear_mult == 1'b1 && partial_done == 1'b0) begin
                 start_mult <= #1 1'b1;
                 clear_mult <= #1 1'b0;
-            end
+            end // Restart the multiplier
             else start_mult <= #1 1'b1;
             if (for_counter != 5'b00000 && partial_done == 1'b1 && clear_mult == 1'b0) begin
-                // Transit to next state
+                // Transit to next bit
                 temp_res[for_counter] <= #1 result[for_counter];
                 temp_res[for_counter - 1] <= #1 1'b1;
                 for_counter <= #1 (for_counter - 1);

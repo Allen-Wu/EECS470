@@ -8,7 +8,7 @@ module testbench();
     logic [31:0] ground_truth;
 	logic quit;
 
-	integer i;
+	integer i, j;
 	wire correct = (ground_truth===result)|~done|reset;
 	time prev_time = $time;
 	time curr_time = $time;
@@ -121,8 +121,27 @@ module testbench();
 		#1
 		reset = 0;
 		wait_until_done();
-		// Random test. It may take 1 min to finish.
-		for (i = 0; i < 100000; ++i) begin
+		// Zero
+		reset = 1;
+		val = 0;
+        cal_ground_truth(val, ground_truth);
+		@(negedge clock);
+		#1
+		reset = 0;
+		wait_until_done();
+		// Short loop
+		i = 64'hFFFF_EEEE_DEAD_BEEF;
+		for (j = 0; j < 2000; ++j) begin
+			reset = 1;
+			val=i;
+            cal_ground_truth(val, ground_truth);
+			@(negedge clock);
+			reset = 0;
+			wait_until_done();
+			i = i - 64'h0000_0000_0000_AAAA;
+		end
+		// Random test.
+		for (i = 0; i < 10000; ++i) begin
 			reset = 1;
 			val={$random,$random};
             cal_ground_truth(val, ground_truth);

@@ -28,4 +28,12 @@ Q3. It seems reasonable. First, the cycle time for the whole multiplier is sligh
     to 4-stage multiplier, the number of stage decreases, but the corresponding cycle time also
     increases. We need to do the calculations to determine the latency change.
 
-Q4. 
+Q4. After trying several different clock period, I find the minimal clock period is also 5ns, which is the
+    same as the clock period for 8-stage multiplier.
+
+Q5. Given the implementation, it takes 599 clock cycles to finish one ISR calculation. So the time for calculating
+    the square root of 1001 would be: latency = 599 * 5 = 2995ns.
+
+    I would expect a performance gain if I use 2-stage multiplier. As calculated in Q2, the latency of 2-stage multiplier
+    is lower than 8-stage multiplier. Although it may have higher clock period, the number of clock cycle for each 
+    calculation will reduce, which further reduces the latency.

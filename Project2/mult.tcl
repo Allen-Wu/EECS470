@@ -16,7 +16,7 @@ read_file -f sverilog [list "ISR.v pipe_mult.v"]
 set design_name ISR
 set clock_name clock
 set reset_name reset
-set CLK_PERIOD 10
+set CLK_PERIOD 5
 
 
 #/***********************************************************/
