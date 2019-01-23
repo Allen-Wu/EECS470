@@ -12,11 +12,11 @@
 set search_path [ list "./" "/afs/umich.edu/class/eecs470/lib/synopsys/"]
 read_file -f ddc [list "mult_stage.ddc"]
 set_dont_touch mult_stage
-read_file -f sverilog [list "pipe_mult.v"]
-set design_name mult
+read_file -f sverilog [list "ISR.v pipe_mult.v"]
+set design_name ISR
 set clock_name clock
 set reset_name reset
-set CLK_PERIOD 5
+set CLK_PERIOD 10
 
 
 #/***********************************************************/

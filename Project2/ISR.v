@@ -18,7 +18,7 @@ module ISR(
     logic partial_done;     // Flag for finishing the partial multiplication
     logic clear_mult;
     
-    always_ff @(posedge clock) begin
+    always_ff @(posedge clock or reset) begin
         // Sync reset
         if (reset == 1'b1) begin
             // Init

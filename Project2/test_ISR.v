@@ -39,7 +39,7 @@ module testbench();
 			if(done) begin
 				$display("@@@Finish one value calculation");
 				curr_time = $time;
-				$display("@@@Duration:%h", curr_time - prev_time);
+				$display("@@@ # Clock Cycle:%d", (curr_time - prev_time)/10);
 				prev_time = curr_time;
 				disable wait_until_done;
 			end
@@ -64,21 +64,23 @@ module testbench();
 	initial begin
 
 		//$vcdpluson;
-		$monitor("Time:%4.0f done:%b ground_truth:%h result:%h",$time,done,ground_truth,result);
-		// Square number
+		$monitor("Time:%4.0f done:%b ground_truth:%h result:%h reset:%h",$time,done,ground_truth,result,reset);
+		// Square number with sync reset
 		val = 144;
 		reset = 1;
 		clock = 0;
 		cal_ground_truth(val, ground_truth);
-
+		#1
 		@(negedge clock);
 		reset = 0;
 		wait_until_done();
 		@(negedge clock);
+		// None-square number
         reset = 1;
 		val = 24;
 		cal_ground_truth(val, ground_truth);
 		@(negedge clock);
+		#1
 		reset = 0;
 		@(negedge clock);
 		wait_until_done();
@@ -86,23 +88,41 @@ module testbench();
 		reset = 1;
 		val = 109;
 		@(negedge clock);
-		reset = 0;
 		cal_ground_truth(val, ground_truth);
+		#1
+		reset = 0;
 		wait_until_done();
 		val = 225;
         reset = 1;
         cal_ground_truth(val, ground_truth);
 		@(negedge clock);
+		#1
 		reset = 0;
-		wait_until_done();
+		// Async reset
 		reset = 1;
 		val = 999;
         cal_ground_truth(val, ground_truth);
 		@(negedge clock);
+		#1
 		reset = 0;
 		wait_until_done();
-		// Random test. It may take 5 mins to finish.
-		for (i = 0; i < 500000; ++i) begin
+		reset = 1;
+		val = 1001;
+        cal_ground_truth(val, ground_truth);
+		@(negedge clock);
+		#1
+		reset = 0;
+		wait_until_done();
+		// Large number
+		reset = 1;
+		val = 64'hFFFF_FFFF_FFFF_FFFF;
+        cal_ground_truth(val, ground_truth);
+		@(negedge clock);
+		#1
+		reset = 0;
+		wait_until_done();
+		// Random test. It may take 1 min to finish.
+		for (i = 0; i < 100000; ++i) begin
 			reset = 1;
 			val={$random,$random};
             cal_ground_truth(val, ground_truth);

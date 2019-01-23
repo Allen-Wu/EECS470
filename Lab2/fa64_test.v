@@ -86,7 +86,7 @@ endtask
 // Set up the clock to tick, notice that this block inverts clock every 5 ticks,
 // so the actual period of the clock is 10, not 5.
 always begin 
-    #5;
+    #2.5;
     clock=~clock; 
 end 
 
@@ -182,8 +182,8 @@ initial begin
 
     // Random Tests
     @(negedge clock);
-    for (i=0; i <= 2000; i=i+1) begin 
-        for (j=0; j <= 2000 ; j=j+1) begin
+    for (i=0; i <= 1000; i=i+1) begin 
+        for (j=0; j <= 1000 ; j=j+1) begin
             A = {$random,$random}; // What's up with this syntax?
             B = {$random,$random};
             if (j % 2 == 1) C_IN = 1'b1;

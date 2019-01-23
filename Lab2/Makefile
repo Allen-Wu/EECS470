@@ -24,16 +24,13 @@ all:	simv
 
 TESTBENCH = fa64_test.v
 SIMFILES = fa64.v
-SYNFILES = fa64.vg
+SYNFILES = full_adder_64bit.vg
 
 
 #####
 # Should be no need to modify after here
 #####
-fa64.vg: fa64.v fa1.v tut_synth.tcl
-	dc_shell-t -f tut_synth.tcl | tee synth.out
-
-fa1.vg:	fa1.v tut_synth.tcl
+full_adder_64bit.vg: fa64.v fa1.v tut_synth.tcl
 	dc_shell-t -f tut_synth.tcl | tee synth.out
 
 simv:	$(SIMFILES) $(TESTBENCH)
