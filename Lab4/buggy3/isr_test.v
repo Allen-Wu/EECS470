@@ -75,7 +75,7 @@ module testbench();
 			$monitor("Time:%4.0f done:%b Val:%b ground_truth:%h result:%h reset:%h",$time,done,val,ground_truth,result,reset);
 		`endif
 		// Square number with sync reset
-		val = 144;
+		val = 226;
 		reset = 1;
 		clock = 0;
 		cal_ground_truth(val, ground_truth);
@@ -86,7 +86,7 @@ module testbench();
 		@(negedge clock);
 		// None-square number
         reset = 1;
-		val = 24;
+		val = 144;
 		cal_ground_truth(val, ground_truth);
 		@(negedge clock);
 		#1

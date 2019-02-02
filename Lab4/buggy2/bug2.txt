@@ -1,0 +1,2 @@
+1. Bug with calculation of (32'hc000_0000)*(32'hc000_0000)
+Ground truth: 0x9000000000000000

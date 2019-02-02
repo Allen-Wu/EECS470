@@ -72,7 +72,7 @@ module testbench();
 
 		//$vcdpluson;
 		`ifdef DEBUG
-			$monitor("Time:%4.0f done:%b Val:%b ground_truth:%h result:%h reset:%h",$time,done,val,ground_truth,result,reset);
+			$monitor("Time:%4.0f done:%b ground_truth:%h result:%h reset:%h",$time,done,ground_truth,result,reset);
 		`endif
 		// Square number with sync reset
 		val = 144;

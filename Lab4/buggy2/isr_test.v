@@ -75,7 +75,11 @@ module testbench();
 			$monitor("Time:%4.0f done:%b Val:%b ground_truth:%h result:%h reset:%h",$time,done,val,ground_truth,result,reset);
 		`endif
 		// Square number with sync reset
-		val = 144;
+		// val = (32'hb000_0000)*(32'hb000_0000);
+		val = (32'hc000_0000)*(32'hc000_0000);
+		$display("Ground truth multiplication result:%h", val);
+		val = 64'h4000_0000_0000_0000;
+		// val = 255;
 		reset = 1;
 		clock = 0;
 		cal_ground_truth(val, ground_truth);
