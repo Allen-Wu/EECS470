@@ -49,28 +49,28 @@ typedef enum logic [3:0] {
 // ALU opA input mux selects
 //
 typedef enum logic [1:0] {
-  ALU_OPA_IS_REGA        = 2'h0,
-  ALU_OPA_IS_MEM_DISP    = 2'h1,
-  ALU_OPA_IS_NPC         = 2'h2,
-  ALU_OPA_IS_NOT3        = 2'h3
+  ALU_OPA_IS_REGA        = 2'h0, // For ALU
+  ALU_OPA_IS_MEM_DISP    = 2'h1, // For load
+  ALU_OPA_IS_NPC         = 2'h2, // For Branch (Both uncond and cond)
+  ALU_OPA_IS_NOT3        = 2'h3  // For JSR
 } ALU_OPA_SELECT;
 
 //
 // ALU opB input mux selects
 //
 typedef enum logic [1:0] {
-  ALU_OPB_IS_REGB       = 2'h0,
-  ALU_OPB_IS_ALU_IMM    = 2'h1,
-  ALU_OPB_IS_BR_DISP    = 2'h2
+  ALU_OPB_IS_REGB       = 2'h0, // For ALU
+  ALU_OPB_IS_ALU_IMM    = 2'h1, // For ALU IMM
+  ALU_OPB_IS_BR_DISP    = 2'h2  // For Branch (Both uncond and cond)
 } ALU_OPB_SELECT;
 
 //
 // Destination register select
 //
 typedef enum logic [1:0] {
-  DEST_IS_REGC  = 2'h0,
-  DEST_IS_REGA  = 2'h1,
-  DEST_NONE     = 2'h2
+  DEST_IS_REGC  = 2'h0, // For ALU
+  DEST_IS_REGA  = 2'h1, // For Load and uncond branch
+  DEST_NONE     = 2'h2  // For Store and cond branch
 } DEST_REG_SEL;
 
 //

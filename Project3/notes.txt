@@ -1,0 +1,15 @@
+IF-STAGE:
+1. if_valid_inst_out should be false only inserting a noop operation into the pipeline.
+2. Add input noop_sig for indicating whether it needs to add NOOP or not.
+
+
+
+
+3. Structural hazard
+4. Branch has higher priority over data hazard stalling
+
+
+
+THINGS HAS BEEN DONE:
+1. Add branch squash signal
+2. Multiple instructions in the pipeline

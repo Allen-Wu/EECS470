@@ -20,10 +20,14 @@ module if_stage(
     input  [63:0] ex_mem_target_pc,        // target pc: use if take_branch is TRUE
     input  [63:0] Imem2proc_data,          // Data coming back from instruction-memory
 
+    input         noop_sig,               // Signal for inserting noop in the IF/ID registers.
+                                          // Should set if_valid_inst_out to be invalid.
+
     output logic [63:0] proc2Imem_addr,    // Address sent to Instruction memory
     output logic [63:0] if_NPC_out,        // PC of instruction after fetched (PC+4).
     output logic [31:0] if_IR_out,        // fetched instruction out
     output logic        if_valid_inst_out  // when low, instruction is garbage
+                                          // Should be invalid only inseting noop.
   );
 
 
@@ -69,8 +73,11 @@ module if_stage(
   always_ff @(posedge clock) begin
     if (reset)
       if_valid_inst_out <= `SD 1;  // must start with something
+    else if (noop_sig == 1'b1)
+      // if_valid_inst_out <= `SD mem_wb_valid_inst;
+      if_valid_inst_out <= `SD 0;
     else
-      if_valid_inst_out <= `SD mem_wb_valid_inst;
+      if_valid_inst_out <= `SD 1;
   end
   
 endmodule  // module if_stage

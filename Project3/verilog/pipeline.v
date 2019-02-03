@@ -151,6 +151,17 @@ module pipeline (
   assign proc2mem_addr =
        (proc2Dmem_command == BUS_NONE) ? proc2Imem_addr : proc2Dmem_addr;
 
+
+  // New added registers for hazard detecting
+  logic if_noop_sig; // Signal for inserting noop in the IF/ID registers.
+  logic branch_squash_sig; // Signal for squash operations in IF/IF, IF/EX, EX/MEM regs
+
+  assign if_noop_sig = (proc2Dmem_command != BUS_NONE); // TODO: handling structural hazard
+  assign branch_squash_sig = ex_mem_take_branch; // TODO: Check correctness
+
+
+  // Forwarding/Data hazard
+
   //////////////////////////////////////////////////
   //                                              //
   //                  IF-Stage                    //
@@ -164,6 +175,7 @@ module pipeline (
     .ex_mem_take_branch(ex_mem_take_branch),
     .ex_mem_target_pc(ex_mem_alu_result),
     .Imem2proc_data(mem2proc_data),
+    .noop_sig(if_noop_sig),
 
     // Outputs
     .if_NPC_out(if_NPC_out), 
@@ -181,7 +193,7 @@ module pipeline (
   assign if_id_enable = 1'b1; // always enabled
   // synopsys sync_set_reset "reset"
   always_ff @(posedge clock) begin
-    if(reset) begin
+    if(reset || branch_squash_sig == 1'b1) begin
       if_id_NPC        <= `SD 0;
       if_id_IR         <= `SD `NOOP_INST;
       if_id_valid_inst <= `SD `FALSE;
@@ -233,7 +245,7 @@ module pipeline (
   assign id_ex_enable = 1'b1; // always enabled
   // synopsys sync_set_reset "reset"
   always_ff @(posedge clock) begin
-    if (reset) begin
+    if (reset || branch_squash_sig == 1'b1) begin
       id_ex_NPC           <= `SD 0;
       id_ex_IR            <= `SD `NOOP_INST;
       id_ex_rega          <= `SD 0;
@@ -304,7 +316,7 @@ module pipeline (
   assign ex_mem_enable = 1'b1; // always enabled
   // synopsys sync_set_reset "reset"
   always_ff @(posedge clock) begin
-    if (reset) begin
+    if (reset || branch_squash_sig == 1'b1) begin
       ex_mem_NPC          <= `SD 0;
       ex_mem_IR           <= `SD `NOOP_INST;
       ex_mem_dest_reg_idx <= `SD `ZERO_REG;
