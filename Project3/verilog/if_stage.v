@@ -56,7 +56,7 @@ module if_stage(
   assign PC_enable = ~data_hazard_stall_sig & ~noop_sig;
 
   // Pass PC+4 down pipeline w/instruction
-  assign if_NPC_out = PC_plus_4;
+  assign if_NPC_out = PC_plus_4 & {64{if_valid_inst_out == 1'b1}};
 
   // This register holds the PC value
   // synopsys sync_set_reset "reset"
