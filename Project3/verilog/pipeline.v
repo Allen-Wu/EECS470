@@ -428,7 +428,7 @@ module pipeline (
         ex_mem_halt         <= `SD id_ex_halt;
         ex_mem_illegal      <= `SD id_ex_illegal;
         ex_mem_valid_inst   <= `SD id_ex_valid_inst;
-        ex_mem_rega         <= `SD id_ex_rega;
+        ex_mem_rega         <= `SD rega_val;
         // these are results of EX stage
         ex_mem_alu_result   <= `SD ex_alu_result_out;
         ex_mem_take_branch  <= `SD ex_take_branch_out;
