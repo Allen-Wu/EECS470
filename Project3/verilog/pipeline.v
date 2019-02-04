@@ -156,7 +156,7 @@ module pipeline (
   logic if_noop_sig; // Signal for inserting noop in the IF/ID registers.
   logic branch_squash_sig; // Signal for squash operations in IF/IF, IF/EX, EX/MEM regs
 
-  assign if_noop_sig = (proc2Dmem_command != BUS_NONE); // TODO: handling structural hazard
+  assign if_noop_sig = (id_ex_rd_mem || id_ex_wr_mem) ? 1'b1 : 1'b0; // TODO: handling structural hazard
   assign branch_squash_sig = ex_mem_take_branch; // TODO: Check correctness
 
 
@@ -173,21 +173,23 @@ module pipeline (
   logic ex_mem_forwardB_flag;
 
   assign mem_wb_forwardA_flag = (mem_wb_dest_reg_idx != `ZERO_REG)
-   & (id_ex_opa_select == ALU_OPA_IS_REGA) & (id_ex_IR[25:21] == mem_wb_dest_reg_idx);
+   & (id_ex_opa_select == ALU_OPA_IS_REGA  || id_ex_opa_select == ALU_OPA_IS_MEM_DISP || id_ex_opa_select == ALU_OPA_IS_NPC) & (id_ex_IR[25:21] == mem_wb_dest_reg_idx);
   
   assign mem_wb_forwardB_flag = (mem_wb_dest_reg_idx != `ZERO_REG)
    & (id_ex_opb_select == ALU_OPB_IS_REGB) & (id_ex_IR[20:16] == mem_wb_dest_reg_idx);
 
   assign ex_mem_forwardA_flag = (ex_mem_dest_reg_idx != `ZERO_REG)
-   & (id_ex_opa_select == ALU_OPA_IS_REGA) & (id_ex_IR[25:21] == ex_mem_dest_reg_idx);
+   & (id_ex_opa_select == ALU_OPA_IS_REGA  || id_ex_opa_select == ALU_OPA_IS_MEM_DISP || id_ex_opa_select == ALU_OPA_IS_NPC) & (id_ex_IR[25:21] == ex_mem_dest_reg_idx);
 
   assign ex_mem_forwardB_flag = (ex_mem_dest_reg_idx != `ZERO_REG)
    & (id_ex_opb_select == ALU_OPB_IS_REGB) & (id_ex_IR[20:16] == ex_mem_dest_reg_idx);
 
-  logic rega_val = (ex_mem_forwardA_flag) ? ex_mem_alu_result:
+  logic [63:0] rega_val;
+  assign rega_val = (ex_mem_forwardA_flag) ? ex_mem_alu_result:
                    (mem_wb_forwardA_flag) ? mem_wb_result: id_ex_rega;
 
-  logic regb_val = (ex_mem_forwardB_flag) ? ex_mem_alu_result:
+  logic [63:0] regb_val;
+  assign regb_val = (ex_mem_forwardB_flag) ? ex_mem_alu_result:
                    (mem_wb_forwardB_flag) ? mem_wb_result: id_ex_regb;
 
 
@@ -243,7 +245,7 @@ module pipeline (
     if (if_id_valid_inst == 1'b1) begin
       // If the instruction is not NOOP
       // Only need to check the first entry for stalling
-      if (id_opa_select_out == ALU_OPA_IS_REGA) begin
+      if (id_opa_select_out == ALU_OPA_IS_REGA || id_opa_select_out == ALU_OPA_IS_MEM_DISP || id_opa_select_out == ALU_OPA_IS_NPC) begin
         if (data_hazard_table[0].valid == 1'b1
          && data_hazard_table[0].mem_load_flag == 1'b1
          && data_hazard_table[0].dest_reg_idx == if_id_IR[25:21]) begin
