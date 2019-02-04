@@ -123,6 +123,18 @@ typedef enum logic [1:0] {
   BUS_STORE    = 2'h2
 } BUS_COMMAND;
 
+
+//
+// Data hazard detection entry
+//
+typedef struct packed{
+  logic       valid;         // valid = 1'b1 means the entry is valid
+  logic       w_dest_flag;   // Flag for whether writing the dest reg or not 
+  logic [4:0] dest_reg_idx;  // Index for the destination register
+  logic       mem_load_flag; // Flag for mem load. If mem load, it is possible to have one stall
+} DATA_HAZARD_ENTRY;
+
+
 //
 // useful boolean single-bit definitions
 //

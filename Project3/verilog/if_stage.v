@@ -22,6 +22,7 @@ module if_stage(
 
     input         noop_sig,               // Signal for inserting noop in the IF/ID registers.
                                           // Should set if_valid_inst_out to be invalid.
+    input         data_hazard_stall_sig,  // Stall for data hazard
 
     output logic [63:0] proc2Imem_addr,    // Address sent to Instruction memory
     output logic [63:0] if_NPC_out,        // PC of instruction after fetched (PC+4).
@@ -51,7 +52,8 @@ module if_stage(
   assign next_PC = ex_mem_take_branch ? ex_mem_target_pc : PC_plus_4;
 
   // The take-branch signal must override stalling (otherwise it may be lost)
-  assign PC_enable = if_valid_inst_out | ex_mem_take_branch;
+  // assign PC_enable = if_valid_inst_out | ex_mem_take_branch;
+  assign PC_enable = ~data_hazard_stall_sig & ~noop_sig;
 
   // Pass PC+4 down pipeline w/instruction
   assign if_NPC_out = PC_plus_4;

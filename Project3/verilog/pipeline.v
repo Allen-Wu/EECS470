@@ -161,6 +161,35 @@ module pipeline (
 
 
   // Forwarding/Data hazard
+  DATA_HAZARD_ENTRY [2:0] data_hazard_table;
+  logic data_hazard_stall_sig;
+
+  // Temp regsiters for data hazard detection
+  DATA_HAZARD_ENTRY entry_to_write;
+
+  logic mem_wb_forwardA_flag;
+  logic mem_wb_forwardB_flag;
+  logic ex_mem_forwardA_flag;
+  logic ex_mem_forwardB_flag;
+
+  assign mem_wb_forwardA_flag = (mem_wb_dest_reg_idx != `ZERO_REG)
+   & (id_ex_opa_select == ALU_OPA_IS_REGA) & (id_ex_IR[25:21] == mem_wb_dest_reg_idx);
+  
+  assign mem_wb_forwardB_flag = (mem_wb_dest_reg_idx != `ZERO_REG)
+   & (id_ex_opb_select == ALU_OPB_IS_REGB) & (id_ex_IR[20:16] == mem_wb_dest_reg_idx);
+
+  assign ex_mem_forwardA_flag = (ex_mem_dest_reg_idx != `ZERO_REG)
+   & (id_ex_opa_select == ALU_OPA_IS_REGA) & (id_ex_IR[25:21] == ex_mem_dest_reg_idx);
+
+  assign ex_mem_forwardB_flag = (ex_mem_dest_reg_idx != `ZERO_REG)
+   & (id_ex_opb_select == ALU_OPB_IS_REGB) & (id_ex_IR[20:16] == ex_mem_dest_reg_idx);
+
+  logic rega_val = (ex_mem_forwardA_flag) ? ex_mem_alu_result:
+                   (mem_wb_forwardA_flag) ? mem_wb_result: id_ex_rega;
+
+  logic regb_val = (ex_mem_forwardB_flag) ? ex_mem_alu_result:
+                   (mem_wb_forwardB_flag) ? mem_wb_result: id_ex_regb;
+
 
   //////////////////////////////////////////////////
   //                                              //
@@ -176,6 +205,7 @@ module pipeline (
     .ex_mem_target_pc(ex_mem_alu_result),
     .Imem2proc_data(mem2proc_data),
     .noop_sig(if_noop_sig),
+    .data_hazard_stall_sig(data_hazard_stall_sig),
 
     // Outputs
     .if_NPC_out(if_NPC_out), 
@@ -190,7 +220,7 @@ module pipeline (
   //            IF/ID Pipeline Register           //
   //                                              //
   //////////////////////////////////////////////////
-  assign if_id_enable = 1'b1; // always enabled
+  assign if_id_enable = (data_hazard_stall_sig == 1'b1) ? 1'b0 : 1'b1; // always enabled
   // synopsys sync_set_reset "reset"
   always_ff @(posedge clock) begin
     if(reset || branch_squash_sig == 1'b1) begin
@@ -204,6 +234,63 @@ module pipeline (
       if_id_valid_inst <= `SD if_valid_inst_out;
     end // if (if_id_enable)
   end // always
+
+
+  // Comb logic for data hazard detection
+  // TODO: Forwading logic
+  always_comb begin
+    data_hazard_stall_sig = 1'b0;
+    if (if_id_valid_inst == 1'b1) begin
+      // If the instruction is not NOOP
+      // Only need to check the first entry for stalling
+      if (id_opa_select_out == ALU_OPA_IS_REGA) begin
+        if (data_hazard_table[0].valid == 1'b1
+         && data_hazard_table[0].mem_load_flag == 1'b1
+         && data_hazard_table[0].dest_reg_idx == if_id_IR[25:21]) begin
+           data_hazard_stall_sig = 1'b1;
+         end
+      end
+      else if (id_opb_select_out == ALU_OPB_IS_REGB) begin
+        if (data_hazard_table[0].valid == 1'b1
+         && data_hazard_table[0].mem_load_flag == 1'b1
+         && data_hazard_table[0].dest_reg_idx == if_id_IR[20:16]) begin
+           data_hazard_stall_sig = 1'b1;
+         end
+      end
+    end
+    // Entry to write
+    if (data_hazard_stall_sig == 1'b0) begin
+      // Insert proper information
+      entry_to_write.valid = 1'b1;
+      if (id_dest_reg_idx_out != `ZERO_REG) begin
+        entry_to_write.w_dest_flag = 1'b1;
+        entry_to_write.dest_reg_idx = id_dest_reg_idx_out;
+      end
+      else begin
+        entry_to_write.w_dest_flag = 1'b0;
+        entry_to_write.dest_reg_idx = 5'b00000;
+      end
+      if (id_rd_mem_out == 1'b1) begin
+        // If read mem, namely, load
+        entry_to_write.mem_load_flag = 1'b1;
+      end
+      else entry_to_write.mem_load_flag = 1'b0;
+    end
+    else begin
+      entry_to_write.valid = 1'b0;
+      entry_to_write.w_dest_flag = 1'b0;
+      entry_to_write.dest_reg_idx = 5'b00000;
+      entry_to_write.mem_load_flag = 1'b0;
+    end
+  end
+
+  // Sequential logic for data hazard detection
+  // Shift the entry to right
+  always_ff @(posedge clock) begin
+    data_hazard_table[2] <= `SD data_hazard_table[1];
+    data_hazard_table[1] <= `SD data_hazard_table[0];
+    data_hazard_table[0] <= `SD entry_to_write;
+  end
 
    
   //////////////////////////////////////////////////
@@ -245,7 +332,7 @@ module pipeline (
   assign id_ex_enable = 1'b1; // always enabled
   // synopsys sync_set_reset "reset"
   always_ff @(posedge clock) begin
-    if (reset || branch_squash_sig == 1'b1) begin
+    if (reset || branch_squash_sig == 1'b1 || data_hazard_stall_sig == 1'b1) begin
       id_ex_NPC           <= `SD 0;
       id_ex_IR            <= `SD `NOOP_INST;
       id_ex_rega          <= `SD 0;
@@ -294,8 +381,8 @@ module pipeline (
     .reset(reset),
     .id_ex_NPC(id_ex_NPC), 
     .id_ex_IR(id_ex_IR),
-    .id_ex_rega(id_ex_rega),
-    .id_ex_regb(id_ex_regb),
+    .id_ex_rega(rega_val),
+    .id_ex_regb(regb_val),
     .id_ex_opa_select(id_ex_opa_select),
     .id_ex_opb_select(id_ex_opb_select),
     .id_ex_alu_func(id_ex_alu_func),
