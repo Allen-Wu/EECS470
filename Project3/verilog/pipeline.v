@@ -185,12 +185,14 @@ module pipeline (
    & (id_ex_opb_select == ALU_OPB_IS_REGB) & (id_ex_IR[20:16] == ex_mem_dest_reg_idx);
 
   logic [63:0] rega_val;
-  assign rega_val = (ex_mem_forwardA_flag) ? ex_mem_alu_result:
-                   (mem_wb_forwardA_flag) ? mem_wb_result: id_ex_rega;
+  assign rega_val = (ex_mem_forwardA_flag && ex_mem_IR[31:26] != `LDQ_INST) ? ex_mem_alu_result:
+                    (ex_mem_forwardA_flag && ex_mem_IR[31:26] == `LDQ_INST) ? mem_result_out:
+                    (mem_wb_forwardA_flag) ? mem_wb_result: id_ex_rega;
 
   logic [63:0] regb_val;
-  assign regb_val = (ex_mem_forwardB_flag) ? ex_mem_alu_result:
-                   (mem_wb_forwardB_flag) ? mem_wb_result: id_ex_regb;
+  assign regb_val = (ex_mem_forwardB_flag && ex_mem_IR[31:26] != `LDQ_INST) ? ex_mem_alu_result:
+                    (ex_mem_forwardB_flag && ex_mem_IR[31:26] == `LDQ_INST) ? mem_result_out:
+                    (mem_wb_forwardB_flag) ? mem_wb_result: id_ex_regb;
 
 
   //////////////////////////////////////////////////
