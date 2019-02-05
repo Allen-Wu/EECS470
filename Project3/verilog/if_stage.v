@@ -53,7 +53,7 @@ module if_stage(
 
   // The take-branch signal must override stalling (otherwise it may be lost)
   // assign PC_enable = if_valid_inst_out | ex_mem_take_branch;
-  assign PC_enable = ~data_hazard_stall_sig & ~noop_sig;
+  assign PC_enable = (~data_hazard_stall_sig) & (if_valid_inst_out) | ex_mem_take_branch;
 
   // Pass PC+4 down pipeline w/instruction
   assign if_NPC_out = PC_plus_4 & {64{if_valid_inst_out == 1'b1}};
@@ -75,7 +75,7 @@ module if_stage(
   always_ff @(posedge clock) begin
     if (reset)
       if_valid_inst_out <= `SD 1;  // must start with something
-    else if (noop_sig == 1'b1)
+    else if (noop_sig == 1'b1 && ex_mem_take_branch == 1'b0)
       // if_valid_inst_out <= `SD mem_wb_valid_inst;
       if_valid_inst_out <= `SD 0;
     else
